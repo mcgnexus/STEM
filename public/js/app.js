@@ -50,7 +50,7 @@ async function init() {
 
   if (getToken()) {
     try {
-      const { user } = await api.get('/auth/me');
+      const { user } = await api.get('/auth');
       await startApp(user);
       return;
     } catch {
@@ -100,7 +100,7 @@ function bindAuth() {
     e.preventDefault();
     const f = e.target.elements;
     try {
-      const { token, user } = await api.post('/auth/login', {
+      const { token, user } = await api.post('/auth?action=login', {
         email: f.email.value, password: f.password.value,
       });
       setToken(token);
@@ -114,7 +114,7 @@ function bindAuth() {
     e.preventDefault();
     const f = e.target.elements;
     try {
-      const { token, user } = await api.post('/auth/register', {
+      const { token, user } = await api.post('/auth?action=register', {
         nombre: f.nombre.value, email: f.email.value,
         password: f.password.value, rol: f.rol.value,
       });
@@ -200,7 +200,7 @@ function bindCentros() {
       telefono: f.telefono.value,
     };
     try {
-      if (f.id.value) await api.put(`/centros/${f.id.value}`, body);
+      if (f.id.value) await api.put(`/centros?id=${f.id.value}`, body);
       else await api.post('/centros', body);
       resetCentroForm();
       await loadCentros();
@@ -231,7 +231,7 @@ function bindCentros() {
     if (del) {
       if (!confirm('¿Eliminar este centro?')) return;
       try {
-        await api.del(`/centros/${del.dataset.delCentro}`);
+        await api.del(`/centros?id=${del.dataset.delCentro}`);
         await loadCentros();
         await loadTalleres();
       } catch (err) {
@@ -290,7 +290,7 @@ function bindTalleres() {
       ubicacion: f.ubicacion.value,
     };
     try {
-      if (f.id.value) await api.put(`/talleres/${f.id.value}`, body);
+      if (f.id.value) await api.put(`/talleres?id=${f.id.value}`, body);
       else await api.post('/talleres', body);
       resetTallerForm();
       await loadTalleres();
@@ -327,7 +327,7 @@ function bindTalleres() {
     if (del) {
       if (!confirm('¿Eliminar este taller y todos sus datos asociados?')) return;
       try {
-        await api.del(`/talleres/${del.dataset.delTaller}`);
+        await api.del(`/talleres?id=${del.dataset.delTaller}`);
         await loadTalleres();
       } catch (err) {
         showError(err.message);
@@ -476,7 +476,7 @@ function bindDetalle() {
 
   $('#estado-select').addEventListener('change', async (e) => {
     try {
-      await api.patch(`/presupuestos/${state.tallerId}`, { estado: e.target.value });
+      await api.patch(`/presupuestos?id=${state.tallerId}`, { estado: e.target.value });
     } catch (err) {
       showError(err.message);
     }
@@ -496,7 +496,7 @@ function bindDetalle() {
       proveedor: f.proveedor.value,
     };
     try {
-      if (f.id.value) await api.put(`/materiales/${f.id.value}`, body);
+      if (f.id.value) await api.put(`/materiales?id=${f.id.value}`, body);
       else await api.post('/materiales', body);
       resetMaterialForm();
       await refreshDetalle();
@@ -517,7 +517,7 @@ function bindDetalle() {
     }
     if (del) {
       if (!confirm('¿Quitar este material?')) return;
-      try { await api.del(`/materiales/${del.dataset.delMaterial}`); await refreshDetalle(); }
+      try { await api.del(`/materiales?id=${del.dataset.delMaterial}`); await refreshDetalle(); }
       catch (err) { showError(err.message); }
     }
   });
@@ -534,7 +534,7 @@ function bindDetalle() {
       medio: f.medio.value,
     };
     try {
-      if (f.id.value) await api.put(`/desplazamientos/${f.id.value}`, body);
+      if (f.id.value) await api.put(`/desplazamientos?id=${f.id.value}`, body);
       else await api.post('/desplazamientos', body);
       resetDesplazamientoForm();
       await refreshDetalle();
@@ -555,7 +555,7 @@ function bindDetalle() {
     }
     if (del) {
       if (!confirm('¿Quitar este desplazamiento?')) return;
-      try { await api.del(`/desplazamientos/${del.dataset.delDesp}`); await refreshDetalle(); }
+      try { await api.del(`/desplazamientos?id=${del.dataset.delDesp}`); await refreshDetalle(); }
       catch (err) { showError(err.message); }
     }
   });
@@ -571,7 +571,7 @@ function bindDetalle() {
       tarifa_hora: Number(f.tarifa_hora.value) || 0,
     };
     try {
-      if (f.id.value) await api.put(`/horas-trabajo/${f.id.value}`, body);
+      if (f.id.value) await api.put(`/horas-trabajo?id=${f.id.value}`, body);
       else await api.post('/horas-trabajo', body);
       resetHorasForm();
       await refreshDetalle();
@@ -592,7 +592,7 @@ function bindDetalle() {
     }
     if (del) {
       if (!confirm('¿Quitar este registro de horas?')) return;
-      try { await api.del(`/horas-trabajo/${del.dataset.delHoras}`); await refreshDetalle(); }
+      try { await api.del(`/horas-trabajo?id=${del.dataset.delHoras}`); await refreshDetalle(); }
       catch (err) { showError(err.message); }
     }
   });

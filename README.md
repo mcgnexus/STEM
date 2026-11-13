@@ -7,15 +7,15 @@ desplazamientos, horas de trabajo y presupuestos con estado.
 - **Backend:** una única Vercel Serverless Function en `api/` que enruta a `handlers/`.
 - **Base de datos:** Neon (PostgreSQL serverless).
 
-> La API se sirve desde **una sola Serverless Function** (`api/[...route].js`) que
-> distribuye las peticiones a `handlers/`. Así se respeta el límite de 12
-> funciones por deployment del plan Hobby de Vercel. Los archivos de `handlers/`
-> no se despliegan como funciones.
+> La API se sirve desde **7 Serverless Functions** (una por recurso) dentro del
+> límite de 12 del plan Hobby de Vercel. Cada función delega en `handlers/`, que
+> no se despliega como funciones. El `id` de un recurso se pasa por query string
+> (`?id=`), porque el runtime de Vercel no enruta rutas anidadas a un catch-all.
 
 ## Estructura
 
 ```
-api/[...route].js    Única función serverless: enruta /api/* -> handlers
+api/*.js             Una función por recurso (auth, centros, talleres, ...)
 handlers/            Lógica de cada endpoint (no se despliega como función)
   auth/              register, login, me
   centros/           CRUD centros educativos
@@ -86,26 +86,26 @@ acceso para crear el primer usuario.
 
 | Método | Ruta                              | Descripción                          |
 | ------ | --------------------------------- | ------------------------------------ |
-| POST   | `/api/auth/register`              | Crear cuenta                         |
-| POST   | `/api/auth/login`                 | Iniciar sesión (devuelve JWT)        |
-| GET    | `/api/auth/me`                    | Usuario del token                    |
+| POST   | `/api/auth?action=register`       | Crear cuenta                         |
+| POST   | `/api/auth?action=login`          | Iniciar sesión (devuelve JWT)        |
+| GET    | `/api/auth`                       | Usuario del token                    |
 | GET    | `/api/centros`                    | Listar centros                       |
 | POST   | `/api/centros`                    | Crear centro                         |
-| GET/PUT/DELETE | `/api/centros/:id`        | Leer / editar / borrar centro        |
+| GET/PUT/DELETE | `/api/centros?id=`        | Leer / editar / borrar centro        |
 | GET    | `/api/talleres`                   | Listar talleres                      |
 | POST   | `/api/talleres`                   | Crear taller                         |
-| GET/PUT/DELETE | `/api/talleres/:id`       | Leer / editar / borrar taller        |
+| GET/PUT/DELETE | `/api/talleres?id=`       | Leer / editar / borrar taller        |
 | GET    | `/api/materiales?taller_id=`      | Listar materiales                    |
 | POST   | `/api/materiales`                 | Añadir material                      |
-| PUT/DELETE | `/api/materiales/:id`         | Editar / borrar material             |
+| PUT/DELETE | `/api/materiales?id=`         | Editar / borrar material             |
 | GET    | `/api/desplazamientos?taller_id=` | Listar desplazamientos               |
 | POST   | `/api/desplazamientos`            | Añadir desplazamiento                |
-| PUT/DELETE | `/api/desplazamientos/:id`    | Editar / borrar desplazamiento       |
+| PUT/DELETE | `/api/desplazamientos?id=`    | Editar / borrar desplazamiento       |
 | GET    | `/api/horas-trabajo?taller_id=`   | Listar horas                         |
 | POST   | `/api/horas-trabajo`              | Añadir horas                         |
-| PUT/DELETE | `/api/horas-trabajo/:id`      | Editar / borrar horas                |
+| PUT/DELETE | `/api/horas-trabajo?id=`      | Editar / borrar horas                |
 | GET    | `/api/presupuestos?taller_id=`    | Totales + estado del taller          |
-| PATCH  | `/api/presupuestos/:taller_id`    | Cambiar estado (`{estado}`)          |
+| PATCH  | `/api/presupuestos?id=`           | Cambiar estado (`{estado}`)          |
 
 Todas las rutas salvo `register` y `login` requieren cabecera
 `Authorization: Bearer <token>`.
