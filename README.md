@@ -4,13 +4,19 @@ Aplicación web para gestionar talleres STEM: centros educativos, materiales,
 desplazamientos, horas de trabajo y presupuestos con estado.
 
 - **Frontend:** HTML/CSS/JS vanilla (sin build), servido desde `public/`.
-- **Backend:** Vercel Serverless Functions en `api/` (Node.js).
+- **Backend:** una única Vercel Serverless Function en `api/` que enruta a `handlers/`.
 - **Base de datos:** Neon (PostgreSQL serverless).
+
+> La API se sirve desde **una sola Serverless Function** (`api/[...route].js`) que
+> distribuye las peticiones a `handlers/`. Así se respeta el límite de 12
+> funciones por deployment del plan Hobby de Vercel. Los archivos de `handlers/`
+> no se despliegan como funciones.
 
 ## Estructura
 
 ```
-api/                 Funciones serverless (rutas /api/*)
+api/[...route].js    Única función serverless: enruta /api/* -> handlers
+handlers/            Lógica de cada endpoint (no se despliega como función)
   auth/              register, login, me
   centros/           CRUD centros educativos
   talleres/          CRUD talleres
